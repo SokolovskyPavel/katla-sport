@@ -60,10 +60,6 @@ namespace KatlaSport.Services.HiveManagement
         public async Task SetStatusAsync(int hiveSectionId, bool deletedStatus)
         {
             var dbHiveSections = await _context.Sections.Where(h => h.Id == hiveSectionId).ToArrayAsync();
-            if (dbHiveSections.Length > 0)
-            {
-                throw new RequestedResourceHasConflictException("code");
-            }
 
             if (dbHiveSections.Length == 0)
             {
