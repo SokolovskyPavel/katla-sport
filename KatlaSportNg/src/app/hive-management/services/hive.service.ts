@@ -31,11 +31,11 @@ export class HiveService {
   }
 
   updateHive(hive: Hive): Observable<Object> {
-    return this.http.put<Hive>(`${this.url}${hive.id}`, hive);
+    return this.http.put<Object>(`${this.url}${hive.id}`, hive);
   }
 
   deleteHive(hiveId: number): Observable<Object> {
-    return this.http.delete<Hive>(`${this.url}${hiveId}`);
+    return this.http.delete<Object>(`${this.url}${hiveId}`);
   }
 
   setHiveStatus(hiveId: number, deletedStatus: boolean): Observable<Object> {
