@@ -115,6 +115,8 @@
     <Compile Include="HiveManagement\HiveSectionServiceAutoFixtureTest.cs" />
     <Compile Include="HiveManagement\HiveServiceAutoFixtureTest.cs" />
     <Compile Include="MockExtensions.cs" />
+    <Compile Include="ProductManagement\ProductCatalogueServiceAutoFixtureTests.cs" />
+    <Compile Include="ProductManagement\ProductCategoryServiceAutoFixtureTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
