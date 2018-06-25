@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using KatlaSport.DataAccess;
 
 namespace KatlaSport.Services.Tests
 {
-    internal class FakeEntitySet<TEntity> : EntitySetBase<TEntity>
+    internal class FakeEntitySet<TEntity> : EntitySetBase<TEntity>, IDbAsyncEnumerable<TEntity>
     where TEntity : class
     {
         private readonly IList<TEntity> _list;
@@ -28,6 +29,16 @@ namespace KatlaSport.Services.Tests
         {
             _list.Remove(entity);
             return entity;
+        }
+
+        public IDbAsyncEnumerator<TEntity> GetAsyncEnumerator()
+        {
+            return new AsyncEnumeratorWrapper<TEntity>(_list.GetEnumerator());
+        }
+
+        IDbAsyncEnumerator IDbAsyncEnumerable.GetAsyncEnumerator()
+        {
+            return GetAsyncEnumerator();
         }
     }
 }
