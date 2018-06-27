@@ -30,10 +30,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void GetProductsAsync_TenEntities_SeccessfulResult([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
 
             var result = await service.GetProductsAsync(0, _product.Count);
 
@@ -44,10 +41,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void GetProductAsync_OneValidEntity_ValidEntityReturns([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(1).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
 
             var result = await service.GetProductAsync(_product[0].Id);
 
@@ -59,10 +53,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void GetProductAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var id = 0;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.GetProductAsync(id));
@@ -72,10 +63,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void CreateProductAsync_ValidEntity_SuccessfullHiveAddition([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
 
             var result = await service.CreateProductAsync(updateProductRequest);
@@ -88,10 +76,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void CreateProductAsync_EntityWithExistedCode_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
             updateProductRequest.Code = _product[0].Code;
 
@@ -102,10 +87,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void UpdateProductAsync_ValidEntity_SuccessfullHiveEdition([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
             int id = _product[0].Id;
 
@@ -120,10 +102,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void UpdateProductAsync_EntityWithExistedCode_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
             updateProductRequest.Code = _product[0].Code;
             int id = _product[1].Id;
@@ -135,10 +114,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void UpdateProductAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
             int id = 0;
 
@@ -149,10 +125,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void DeleteAsync_ExistedIdentifierFlagIsDeletedTrue_SuccessfulDeleting([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var id = _product[0].Id;
             _product[0].IsDeleted = true;
 
@@ -165,10 +138,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void DeleteProductAsync_NotExistedIdentifierFlagIsDeletedTrue_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var id = 0;
             _product[0].IsDeleted = true;
 
@@ -179,10 +149,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void DeleteProductAsync_ExistedIdentifierFlagIsDeletedFalse_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             var id = _product[0].Id;
             _product[0].IsDeleted = false;
 
@@ -193,10 +160,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void SetStatusAsync_EntityHasFlagIsDeletedTrueSetFalse_SuccsessfulChange([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             _product[0].IsDeleted = true;
 
             await service.SetStatusAsync(_product[0].Id, false);
@@ -208,10 +172,7 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void SetStatusAsync_EntityHasFlagIsDeletedFalseSetTrue_SuccsessfulChange([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            Configure(context, fixture);
             _product[0].IsDeleted = false;
 
             await service.SetStatusAsync(_product[0].Id, true);
@@ -223,13 +184,18 @@ namespace KatlaSport.Services.Tests.ProductManagement
         [AutoMoqData]
         public async void SetStatusAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductCatalogueContext> context, ProductCatalogueService service, IFixture fixture)
         {
+            Configure(context, fixture);
+            var id = 0;
+
+            await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.SetStatusAsync(id, false));
+        }
+
+        private void Configure(Mock<IProductCatalogueContext> context, IFixture fixture)
+        {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
             _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
             context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
-            var id = 0;
-
-            await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.SetStatusAsync(id, false));
         }
     }
 }
