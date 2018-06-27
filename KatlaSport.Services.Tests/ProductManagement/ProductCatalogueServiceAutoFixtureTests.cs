@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using AutoMapper;
@@ -12,6 +13,8 @@ namespace KatlaSport.Services.Tests.ProductManagement
 {
     public class ProductCatalogueServiceAutoFixtureTests
     {
+        private List<CatalogueProduct> _product;
+
         public ProductCatalogueServiceAutoFixtureTests()
         {
             Mapper.Reset();
@@ -29,12 +32,12 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
 
-            var result = await service.GetProductsAsync(0, product.Count);
+            var result = await service.GetProductsAsync(0, _product.Count);
 
-            result.Should().HaveCount(product.Count);
+            result.Should().HaveCount(_product.Count);
         }
 
         [Theory]
@@ -43,13 +46,13 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(1).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(1).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
 
-            var result = await service.GetProductAsync(product[0].Id);
+            var result = await service.GetProductAsync(_product[0].Id);
 
-            result.Code.Should().Be(product[0].Code);
-            result.Name.Should().Be(product[0].Name);
+            result.Code.Should().Be(_product[0].Code);
+            result.Name.Should().Be(_product[0].Name);
         }
 
         [Theory]
@@ -58,8 +61,8 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var id = 0;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.GetProductAsync(id));
@@ -71,8 +74,8 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
 
             var result = await service.CreateProductAsync(updateProductRequest);
@@ -87,10 +90,10 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
-            updateProductRequest.Code = product[0].Code;
+            updateProductRequest.Code = _product[0].Code;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.CreateProductAsync(updateProductRequest));
         }
@@ -101,10 +104,10 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
-            int id = product[0].Id;
+            int id = _product[0].Id;
 
             var result = await service.UpdateProductAsync(id, updateProductRequest);
 
@@ -119,11 +122,11 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
-            updateProductRequest.Code = product[0].Code;
-            int id = product[1].Id;
+            updateProductRequest.Code = _product[0].Code;
+            int id = _product[1].Id;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.UpdateProductAsync(id, updateProductRequest));
         }
@@ -134,8 +137,8 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var updateProductRequest = fixture.Create<UpdateProductRequest>();
             int id = 0;
 
@@ -148,10 +151,10 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
-            var id = product[0].Id;
-            product[0].IsDeleted = true;
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            var id = _product[0].Id;
+            _product[0].IsDeleted = true;
 
             await service.DeleteProductAsync(id);
 
@@ -164,10 +167,10 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var id = 0;
-            product[0].IsDeleted = true;
+            _product[0].IsDeleted = true;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.DeleteProductAsync(id));
         }
@@ -178,10 +181,10 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
-            var id = product[0].Id;
-            product[0].IsDeleted = false;
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            var id = _product[0].Id;
+            _product[0].IsDeleted = false;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.DeleteProductAsync(id));
         }
@@ -192,13 +195,13 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
-            product[0].IsDeleted = true;
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            _product[0].IsDeleted = true;
 
-            await service.SetStatusAsync(product[0].Id, false);
+            await service.SetStatusAsync(_product[0].Id, false);
 
-            product[0].IsDeleted.Should().Be(false);
+            _product[0].IsDeleted.Should().Be(false);
         }
 
         [Theory]
@@ -207,13 +210,13 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
-            product[0].IsDeleted = false;
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
+            _product[0].IsDeleted = false;
 
-            await service.SetStatusAsync(product[0].Id, true);
+            await service.SetStatusAsync(_product[0].Id, true);
 
-            product[0].IsDeleted.Should().Be(true);
+            _product[0].IsDeleted.Should().Be(true);
         }
 
         [Theory]
@@ -222,8 +225,8 @@ namespace KatlaSport.Services.Tests.ProductManagement
         {
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
             fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var product = fixture.CreateMany<CatalogueProduct>(10).ToList();
-            context.Setup(c => c.Products).ReturnsAsyncEntitySet(product);
+            _product = fixture.CreateMany<CatalogueProduct>(10).ToList();
+            context.Setup(c => c.Products).ReturnsAsyncEntitySet(_product);
             var id = 0;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.SetStatusAsync(id, false));
