@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using AutoFixture.Xunit2;
 using AutoMapper;
@@ -12,11 +13,7 @@ namespace KatlaSport.Services.Tests.HiveManagement
 {
     public class HiveServiceAutoFixtureTest
     {
-        private Mock<IProductStoreHiveContext> _context;
-
-        private IUserContext _userContext;
-
-        private HiveService _service;
+        private List<StoreHive> _hive;
 
         public HiveServiceAutoFixtureTest()
         {
@@ -33,42 +30,33 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void GetHivesAsync_TenEntities_SeccessfulResult([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hives = fixture.CreateMany<StoreHive>(10).ToList();
+            Configure(context, fixture);
             var sections = fixture.CreateMany<StoreHiveSection>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hives);
             context.Setup(c => c.Sections).ReturnsAsyncEntitySet(sections);
 
             var result = await service.GetHivesAsync();
 
-            result.Should().HaveCount(hives.Count);
+            result.Should().HaveCount(_hive.Count);
         }
 
         [Theory]
         [AutoMoqData]
         public async void GetHiveAsync_OneValidEntity_ValidEntityReturns([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(1).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
 
-            var result = await service.GetHiveAsync(hive[0].Id);
+            var result = await service.GetHiveAsync(_hive[0].Id);
 
-            result.Code.Should().Be(hive[0].Code);
-            result.Name.Should().Be(hive[0].Name);
-            result.Address.Should().Be(hive[0].Address);
+            result.Code.Should().Be(_hive[0].Code);
+            result.Name.Should().Be(_hive[0].Name);
+            result.Address.Should().Be(_hive[0].Address);
         }
 
         [Theory]
         [AutoMoqData]
         public async void GetHiveAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.GetHiveAsync(0));
         }
@@ -77,10 +65,7 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void CreateHiveAsync_ValidEntity_SuccessfullHiveAddition([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var updateHiveRequest = fixture.Create<UpdateHiveRequest>();
 
             var result = await service.CreateHiveAsync(updateHiveRequest);
@@ -94,12 +79,9 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void CreateHiveAsync_EntityWithExistedCode_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var updateHiveRequest = fixture.Create<UpdateHiveRequest>();
-            updateHiveRequest.Code = hive[0].Code;
+            updateHiveRequest.Code = _hive[0].Code;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.CreateHiveAsync(updateHiveRequest));
         }
@@ -108,12 +90,9 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void UpdateHiveAsync_ValidEntity_SuccessfullHiveEdition([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var updateHiveRequest = fixture.Create<UpdateHiveRequest>();
-            int id = hive[0].Id;
+            int id = _hive[0].Id;
 
             var result = await service.UpdateHiveAsync(id, updateHiveRequest);
 
@@ -127,13 +106,10 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void UpdateHiveAsync_EntityWithExistedCode_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var updateHiveRequest = fixture.Create<UpdateHiveRequest>();
-            updateHiveRequest.Code = hive[0].Code;
-            int id = hive[1].Id;
+            updateHiveRequest.Code = _hive[0].Code;
+            int id = _hive[1].Id;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.UpdateHiveAsync(id, updateHiveRequest));
         }
@@ -142,10 +118,7 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void UpdateHiveAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var updateHiveRequest = fixture.Create<UpdateHiveRequest>();
             int id = 0;
 
@@ -156,12 +129,9 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void DeleteAsync_ExistedIdentifierFlagIsDeletedTrue_SuccessfulDeleting([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
-            var id = hive[0].Id;
-            hive[0].IsDeleted = true;
+            Configure(context, fixture);
+            var id = _hive[0].Id;
+            _hive[0].IsDeleted = true;
 
             await service.DeleteHiveAsync(id);
 
@@ -172,12 +142,9 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void DeleteAsync_NotExistedIdentifierFlagIsDeletedTrue_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var id = 0;
-            hive[0].IsDeleted = true;
+            _hive[0].IsDeleted = true;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.DeleteHiveAsync(id));
         }
@@ -186,12 +153,9 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void DeleteAsync_ExistedIdentifierFlagIsDeletedFalse_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
-            var id = hive[0].Id;
-            hive[0].IsDeleted = false;
+            Configure(context, fixture);
+            var id = _hive[0].Id;
+            _hive[0].IsDeleted = false;
 
             await Assert.ThrowsAsync<RequestedResourceHasConflictException>(() => service.DeleteHiveAsync(id));
         }
@@ -200,43 +164,42 @@ namespace KatlaSport.Services.Tests.HiveManagement
         [AutoMoqData]
         public async void SetStatusAsync_EntityHasFlagIsDeletedTrueSetFalse_SuccsessfulChange([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
-            hive[0].IsDeleted = true;
+            Configure(context, fixture);
+            _hive[0].IsDeleted = true;
 
-            await service.SetStatusAsync(hive[0].Id, false);
+            await service.SetStatusAsync(_hive[0].Id, false);
 
-            hive[0].IsDeleted.Should().Be(false);
+            _hive[0].IsDeleted.Should().Be(false);
         }
 
         [Theory]
         [AutoMoqData]
         public async void SetStatusAsync_EntityHasFlagIsDeletedFalseSetTrue_SuccsessfulChange([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
-            hive[0].IsDeleted = false;
+            Configure(context, fixture);
+            _hive[0].IsDeleted = false;
 
-            await service.SetStatusAsync(hive[0].Id, true);
+            await service.SetStatusAsync(_hive[0].Id, true);
 
-            hive[0].IsDeleted.Should().Be(true);
+            _hive[0].IsDeleted.Should().Be(true);
         }
 
         [Theory]
         [AutoMoqData]
         public async void SetStatusAsync_NotExistedEntityIdentifier_CustomExceptionThrows([Frozen] Mock<IProductStoreHiveContext> context, HiveService service, IFixture fixture)
         {
-            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
-            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-            var hive = fixture.CreateMany<StoreHive>(10).ToList();
-            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(hive);
+            Configure(context, fixture);
             var id = 0;
 
             await Assert.ThrowsAsync<RequestedResourceNotFoundException>(() => service.SetStatusAsync(id, false));
+        }
+
+        private void Configure(Mock<IProductStoreHiveContext> context, IFixture fixture)
+        {
+            fixture.Behaviors.OfType<ThrowingRecursionBehavior>().ToList().ForEach(b => fixture.Behaviors.Remove(b));
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            _hive = fixture.CreateMany<StoreHive>(10).ToList();
+            context.Setup(c => c.Hives).ReturnsAsyncEntitySet(_hive);
         }
     }
 }
